@@ -1,0 +1,4 @@
+# Vercel Python Serverless 函数（api/rlm.py）的依赖。
+# mini_rlm 核心是纯标准库，mock 模式零依赖。
+# 下面这些仅在请求 use_real=true 时才会真正用到。
+openai>=1.40.0

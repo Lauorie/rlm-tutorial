@@ -1,0 +1,259 @@
+{
+  "metadata": {
+    "type": "metadata",
+    "root_model": "mock-model",
+    "max_depth": 2,
+    "max_iterations": 8,
+    "stopped_reason": "final_answer",
+    "final_answer": "背景：长上下文会退化 / 思想：prompt 当环境用代码读 / 递归：子调用也是完整 RLM",
+    "total_iterations": 2,
+    "total_code_blocks": 2,
+    "total_sub_calls": 3,
+    "total_execution_time": 0.0005420069792307913,
+    "usage": {
+      "total_calls": 5,
+      "input_tokens": 2215,
+      "output_tokens": 113
+    }
+  },
+  "iterations": [
+    {
+      "iteration": 0,
+      "prompt": [
+        {
+          "role": "system",
+          "content": "You are a Recursive Language Model (RLM). Your task's long context does NOT\nsit in your chat window. Instead it lives as a variable `context` inside a\npersistent Python REPL that you control by writing code.\n\nTo act, write a ```repl code block. The REPL persists across turns, so any\nvariable you create stays available next turn. You will be queried turn by\nturn until you submit a final answer.\n\nAvailable inside the REPL:\n- `context`: the (possibly huge) input, usually a `str` or `list[str]`.\n  Peek at it with slicing/len/regex BEFORE doing anything else.\n- `llm_query(prompt: str) -> str`: ask a fresh sub-LLM a question. It has no\n  REPL and no memory; it only sees the prompt string you pass. Use it to\n  process a *slice* of the context.\n- `rlm_query(prompt: str) -> str`: like llm_query, but the sub-call is itself\n  a full RLM (with its own REPL) when recursion depth allows. Use it for\n  sub-tasks that are themselves long/complex.\n- `answer`: a dict initialised to {\"content\": \"\", \"ready\": False}.\n  To submit, set answer[\"content\"] = <your final answer> and\n  answer[\"ready\"] = True inside a ```repl block.\n- `print(...)`: stdout is captured and shown back to you (truncated if long).\n\nRules:\n- First, inspect `context` (length, a short prefix). Do NOT answer blindly.\n- Keep YOUR window small. Never print the whole context. Push heavy reading\n  into llm_query/rlm_query calls over slices.\n- Build intermediate results into variables; stitch them together in code.\n- When confident, set answer[\"ready\"] = True. That ends the loop.\n\n"
+        },
+        {
+          "role": "user",
+          "content": "请完成下面的任务：\n生成全文摘要（递归）\n\n你的 context 是一个 str，共约 127 个字符。每次 llm_query 大约能吃下 ~10 万字符。先 peek 再动手。"
+        },
+        {
+          "role": "user",
+          "content": "你还没有查看过 context。请先写一个 ```repl 代码块查看它的长度和开头，不要急着给最终答案。\n\n第 1/8 轮："
+        }
+      ],
+      "response": "文档按章节拆开，每章交给一个子 RLM 总结。\n```repl\nchs=[c.strip() for c in context.split('###') if c.strip()]\nsums=[]\nfor c in chs:\n    s=rlm_query(f'一句话总结：{c}')\n    sums.append(s)\n    print('子摘要:',s)\n```",
+      "code_blocks": [
+        {
+          "code": "chs=[c.strip() for c in context.split('###') if c.strip()]\nsums=[]\nfor c in chs:\n    s=rlm_query(f'一句话总结：{c}')\n    sums.append(s)\n    print('子摘要:',s)",
+          "result": {
+            "stdout": "子摘要: 背景：长上下文会退化\n子摘要: 思想：prompt 当环境用代码读\n子摘要: 递归：子调用也是完整 RLM\n",
+            "stderr": "",
+            "locals": {
+              "context": "'### 第一章 背景\\n长上下文模型会 context rot，越长越糊。\\n### 第二章 思想\\nRLM 把 prompt 放进 REPL 当变量，用代码 peek。\\n### 第三章 递归\\nrlm_query 让子调用也是完整 RLM，突破输出长度限制。\\n'",
+              "chs": "['第一章 背景\\n长上下文模型会 context rot，越长越糊。', '第二章 思想\\nRLM 把 prompt 放进 REPL 当变量，用代码 peek。', '第三章 递归\\nrlm_query 让子调用也是完整 RLM，突破输出长度限制。']",
+              "sums": "['背景：长上下文会退化', '思想：prompt 当环境用代码读', '递归：子调用也是完整 RLM']",
+              "c": "'第三章 递归\\nrlm_query 让子调用也是完整 RLM，突破输出长度限制。'",
+              "s": "'递归：子调用也是完整 RLM'"
+            },
+            "execution_time": 0.00042274000588804483,
+            "rlm_calls": [
+              {
+                "response": "背景：长上下文会退化",
+                "root_model": "mock-model",
+                "depth": 1,
+                "iterations": [
+                  {
+                    "iteration": 0,
+                    "prompt": [
+                      {
+                        "role": "system",
+                        "content": "You are a Recursive Language Model (RLM). Your task's long context does NOT\nsit in your chat window. Instead it lives as a variable `context` inside a\npersistent Python REPL that you control by writing code.\n\nTo act, write a ```repl code block. The REPL persists across turns, so any\nvariable you create stays available next turn. You will be queried turn by\nturn until you submit a final answer.\n\nAvailable inside the REPL:\n- `context`: the (possibly huge) input, usually a `str` or `list[str]`.\n  Peek at it with slicing/len/regex BEFORE doing anything else.\n- `llm_query(prompt: str) -> str`: ask a fresh sub-LLM a question. It has no\n  REPL and no memory; it only sees the prompt string you pass. Use it to\n  process a *slice* of the context.\n- `rlm_query(prompt: str) -> str`: like llm_query, but the sub-call is itself\n  a full RLM (with its own REPL) when recursion depth allows. Use it for\n  sub-tasks that are themselves long/complex.\n- `answer`: a dict initialised to {\"content\": \"\", \"ready\": False}.\n  To submit, set answer[\"content\"] = <your final answer> and\n  answer[\"ready\"] = True inside a ```repl block.\n- `print(...)`: stdout is captured and shown back to you (truncated if long).\n\nRules:\n- First, inspect `context` (length, a short prefix). Do NOT answer blindly.\n- Keep YOUR window small. Never print the whole context. Push heavy reading\n  into llm_query/rlm_query calls over slices.\n- Build intermediate results into variables; stitch them together in code.\n- When confident, set answer[\"ready\"] = True. That ends the loop.\n\n"
+                      },
+                      {
+                        "role": "user",
+                        "content": "请完成下面的任务：\n一句话总结：第一章 背景\n长上下文模型会 context rot，越长越糊。\n\n你的 context 是一个 str，共约 38 个字符。每次 llm_query 大约能吃下 ~10 万字符。先 peek 再动手。"
+                      },
+                      {
+                        "role": "user",
+                        "content": "你还没有查看过 context。请先写一个 ```repl 代码块查看它的长度和开头，不要急着给最终答案。\n\n第 1/8 轮："
+                      }
+                    ],
+                    "response": "```repl\nanswer['content']='背景：长上下文会退化'\nanswer['ready']=True\n```",
+                    "code_blocks": [
+                      {
+                        "code": "answer['content']='背景：长上下文会退化'\nanswer['ready']=True",
+                        "result": {
+                          "stdout": "",
+                          "stderr": "",
+                          "locals": {
+                            "context": "'一句话总结：第一章 背景\\n长上下文模型会 context rot，越长越糊。'"
+                          },
+                          "execution_time": 4.914699820801616e-05,
+                          "rlm_calls": [],
+                          "final_answer": "背景：长上下文会退化"
+                        }
+                      }
+                    ],
+                    "final_answer": "背景：长上下文会退化",
+                    "iteration_time": 6.539802416227758e-05
+                  }
+                ],
+                "usage": {
+                  "total_calls": 1,
+                  "input_tokens": 431,
+                  "output_tokens": 15
+                },
+                "execution_time": 9.453698294237256e-05,
+                "stopped_reason": "final_answer"
+              },
+              {
+                "response": "思想：prompt 当环境用代码读",
+                "root_model": "mock-model",
+                "depth": 1,
+                "iterations": [
+                  {
+                    "iteration": 0,
+                    "prompt": [
+                      {
+                        "role": "system",
+                        "content": "You are a Recursive Language Model (RLM). Your task's long context does NOT\nsit in your chat window. Instead it lives as a variable `context` inside a\npersistent Python REPL that you control by writing code.\n\nTo act, write a ```repl code block. The REPL persists across turns, so any\nvariable you create stays available next turn. You will be queried turn by\nturn until you submit a final answer.\n\nAvailable inside the REPL:\n- `context`: the (possibly huge) input, usually a `str` or `list[str]`.\n  Peek at it with slicing/len/regex BEFORE doing anything else.\n- `llm_query(prompt: str) -> str`: ask a fresh sub-LLM a question. It has no\n  REPL and no memory; it only sees the prompt string you pass. Use it to\n  process a *slice* of the context.\n- `rlm_query(prompt: str) -> str`: like llm_query, but the sub-call is itself\n  a full RLM (with its own REPL) when recursion depth allows. Use it for\n  sub-tasks that are themselves long/complex.\n- `answer`: a dict initialised to {\"content\": \"\", \"ready\": False}.\n  To submit, set answer[\"content\"] = <your final answer> and\n  answer[\"ready\"] = True inside a ```repl block.\n- `print(...)`: stdout is captured and shown back to you (truncated if long).\n\nRules:\n- First, inspect `context` (length, a short prefix). Do NOT answer blindly.\n- Keep YOUR window small. Never print the whole context. Push heavy reading\n  into llm_query/rlm_query calls over slices.\n- Build intermediate results into variables; stitch them together in code.\n- When confident, set answer[\"ready\"] = True. That ends the loop.\n\n"
+                      },
+                      {
+                        "role": "user",
+                        "content": "请完成下面的任务：\n一句话总结：第二章 思想\nRLM 把 prompt 放进 REPL 当变量，用代码 peek。\n\n你的 context 是一个 str，共约 47 个字符。每次 llm_query 大约能吃下 ~10 万字符。先 peek 再动手。"
+                      },
+                      {
+                        "role": "user",
+                        "content": "你还没有查看过 context。请先写一个 ```repl 代码块查看它的长度和开头，不要急着给最终答案。\n\n第 1/8 轮："
+                      }
+                    ],
+                    "response": "```repl\nanswer['content']='思想：prompt 当环境用代码读'\nanswer['ready']=True\n```",
+                    "code_blocks": [
+                      {
+                        "code": "answer['content']='思想：prompt 当环境用代码读'\nanswer['ready']=True",
+                        "result": {
+                          "stdout": "",
+                          "stderr": "",
+                          "locals": {
+                            "context": "'一句话总结：第二章 思想\\nRLM 把 prompt 放进 REPL 当变量，用代码 peek。'"
+                          },
+                          "execution_time": 5.882501136511564e-05,
+                          "rlm_calls": [],
+                          "final_answer": "思想：prompt 当环境用代码读"
+                        }
+                      }
+                    ],
+                    "final_answer": "思想：prompt 当环境用代码读",
+                    "iteration_time": 7.531797746196389e-05
+                  }
+                ],
+                "usage": {
+                  "total_calls": 1,
+                  "input_tokens": 434,
+                  "output_tokens": 17
+                },
+                "execution_time": 9.371200576424599e-05,
+                "stopped_reason": "final_answer"
+              },
+              {
+                "response": "递归：子调用也是完整 RLM",
+                "root_model": "mock-model",
+                "depth": 1,
+                "iterations": [
+                  {
+                    "iteration": 0,
+                    "prompt": [
+                      {
+                        "role": "system",
+                        "content": "You are a Recursive Language Model (RLM). Your task's long context does NOT\nsit in your chat window. Instead it lives as a variable `context` inside a\npersistent Python REPL that you control by writing code.\n\nTo act, write a ```repl code block. The REPL persists across turns, so any\nvariable you create stays available next turn. You will be queried turn by\nturn until you submit a final answer.\n\nAvailable inside the REPL:\n- `context`: the (possibly huge) input, usually a `str` or `list[str]`.\n  Peek at it with slicing/len/regex BEFORE doing anything else.\n- `llm_query(prompt: str) -> str`: ask a fresh sub-LLM a question. It has no\n  REPL and no memory; it only sees the prompt string you pass. Use it to\n  process a *slice* of the context.\n- `rlm_query(prompt: str) -> str`: like llm_query, but the sub-call is itself\n  a full RLM (with its own REPL) when recursion depth allows. Use it for\n  sub-tasks that are themselves long/complex.\n- `answer`: a dict initialised to {\"content\": \"\", \"ready\": False}.\n  To submit, set answer[\"content\"] = <your final answer> and\n  answer[\"ready\"] = True inside a ```repl block.\n- `print(...)`: stdout is captured and shown back to you (truncated if long).\n\nRules:\n- First, inspect `context` (length, a short prefix). Do NOT answer blindly.\n- Keep YOUR window small. Never print the whole context. Push heavy reading\n  into llm_query/rlm_query calls over slices.\n- Build intermediate results into variables; stitch them together in code.\n- When confident, set answer[\"ready\"] = True. That ends the loop.\n\n"
+                      },
+                      {
+                        "role": "user",
+                        "content": "请完成下面的任务：\n一句话总结：第三章 递归\nrlm_query 让子调用也是完整 RLM，突破输出长度限制。\n\n你的 context 是一个 str，共约 45 个字符。每次 llm_query 大约能吃下 ~10 万字符。先 peek 再动手。"
+                      },
+                      {
+                        "role": "user",
+                        "content": "你还没有查看过 context。请先写一个 ```repl 代码块查看它的长度和开头，不要急着给最终答案。\n\n第 1/8 轮："
+                      }
+                    ],
+                    "response": "```repl\nanswer['content']='递归：子调用也是完整 RLM'\nanswer['ready']=True\n```",
+                    "code_blocks": [
+                      {
+                        "code": "answer['content']='递归：子调用也是完整 RLM'\nanswer['ready']=True",
+                        "result": {
+                          "stdout": "",
+                          "stderr": "",
+                          "locals": {
+                            "context": "'一句话总结：第三章 递归\\nrlm_query 让子调用也是完整 RLM，突破输出长度限制。'"
+                          },
+                          "execution_time": 3.5236997064203024e-05,
+                          "rlm_calls": [],
+                          "final_answer": "递归：子调用也是完整 RLM"
+                        }
+                      }
+                    ],
+                    "final_answer": "递归：子调用也是完整 RLM",
+                    "iteration_time": 4.8385991249233484e-05
+                  }
+                ],
+                "usage": {
+                  "total_calls": 1,
+                  "input_tokens": 433,
+                  "output_tokens": 16
+                },
+                "execution_time": 6.71630259603262e-05,
+                "stopped_reason": "final_answer"
+              }
+            ],
+            "final_answer": null
+          }
+        }
+      ],
+      "final_answer": null,
+      "iteration_time": 0.0004414510040078312
+    },
+    {
+      "iteration": 1,
+      "prompt": [
+        {
+          "role": "system",
+          "content": "You are a Recursive Language Model (RLM). Your task's long context does NOT\nsit in your chat window. Instead it lives as a variable `context` inside a\npersistent Python REPL that you control by writing code.\n\nTo act, write a ```repl code block. The REPL persists across turns, so any\nvariable you create stays available next turn. You will be queried turn by\nturn until you submit a final answer.\n\nAvailable inside the REPL:\n- `context`: the (possibly huge) input, usually a `str` or `list[str]`.\n  Peek at it with slicing/len/regex BEFORE doing anything else.\n- `llm_query(prompt: str) -> str`: ask a fresh sub-LLM a question. It has no\n  REPL and no memory; it only sees the prompt string you pass. Use it to\n  process a *slice* of the context.\n- `rlm_query(prompt: str) -> str`: like llm_query, but the sub-call is itself\n  a full RLM (with its own REPL) when recursion depth allows. Use it for\n  sub-tasks that are themselves long/complex.\n- `answer`: a dict initialised to {\"content\": \"\", \"ready\": False}.\n  To submit, set answer[\"content\"] = <your final answer> and\n  answer[\"ready\"] = True inside a ```repl block.\n- `print(...)`: stdout is captured and shown back to you (truncated if long).\n\nRules:\n- First, inspect `context` (length, a short prefix). Do NOT answer blindly.\n- Keep YOUR window small. Never print the whole context. Push heavy reading\n  into llm_query/rlm_query calls over slices.\n- Build intermediate results into variables; stitch them together in code.\n- When confident, set answer[\"ready\"] = True. That ends the loop.\n\n"
+        },
+        {
+          "role": "user",
+          "content": "请完成下面的任务：\n生成全文摘要（递归）\n\n你的 context 是一个 str，共约 127 个字符。每次 llm_query 大约能吃下 ~10 万字符。先 peek 再动手。"
+        },
+        {
+          "role": "user",
+          "content": "你还没有查看过 context。请先写一个 ```repl 代码块查看它的长度和开头，不要急着给最终答案。\n\n第 1/8 轮："
+        },
+        {
+          "role": "assistant",
+          "content": "文档按章节拆开，每章交给一个子 RLM 总结。\n```repl\nchs=[c.strip() for c in context.split('###') if c.strip()]\nsums=[]\nfor c in chs:\n    s=rlm_query(f'一句话总结：{c}')\n    sums.append(s)\n    print('子摘要:',s)\n```"
+        },
+        {
+          "role": "user",
+          "content": "REPL 输出：\nstdout:\n子摘要: 背景：长上下文会退化\n子摘要: 思想：prompt 当环境用代码读\n子摘要: 递归：子调用也是完整 RLM\n"
+        },
+        {
+          "role": "user",
+          "content": "第 2/8 轮："
+        }
+      ],
+      "response": "汇总三章摘要并交卷。\n```repl\nanswer['content']=' / '.join(sums)\nanswer['ready']=True\n```",
+      "code_blocks": [
+        {
+          "code": "answer['content']=' / '.join(sums)\nanswer['ready']=True",
+          "result": {
+            "stdout": "",
+            "stderr": "",
+            "locals": {
+              "context": "'### 第一章 背景\\n长上下文模型会 context rot，越长越糊。\\n### 第二章 思想\\nRLM 把 prompt 放进 REPL 当变量，用代码 peek。\\n### 第三章 递归\\nrlm_query 让子调用也是完整 RLM，突破输出长度限制。\\n'",
+              "chs": "['第一章 背景\\n长上下文模型会 context rot，越长越糊。', '第二章 思想\\nRLM 把 prompt 放进 REPL 当变量，用代码 peek。', '第三章 递归\\nrlm_query 让子调用也是完整 RLM，突破输出长度限制。']",
+              "sums": "['背景：长上下文会退化', '思想：prompt 当环境用代码读', '递归：子调用也是完整 RLM']",
+              "c": "'第三章 递归\\nrlm_query 让子调用也是完整 RLM，突破输出长度限制。'",
+              "s": "'递归：子调用也是完整 RLM'"
+            },
+            "execution_time": 5.3127005230635405e-05,
+            "rlm_calls": [],
+            "final_answer": "背景：长上下文会退化 / 思想：prompt 当环境用代码读 / 递归：子调用也是完整 RLM"
+          }
+        }
+      ],
+      "final_answer": "背景：长上下文会退化 / 思想：prompt 当环境用代码读 / 递归：子调用也是完整 RLM",
+      "iteration_time": 6.525201024487615e-05
+    }
+  ]
+}

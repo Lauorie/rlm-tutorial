@@ -1,0 +1,39 @@
+# Node
+node_modules/
+.vitepress/dist/
+.vitepress/cache/
+docs/.vitepress/dist/
+docs/.vitepress/cache/
+
+# 构建产物
+dist/
+docs/public/demo/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+*.egg-info/
+.ruff_cache/
+
+# 轨迹日志
+final-project/backend/logs/
+*.jsonl
+
+# 环境变量
+.env
+.env.*
+!.env.example
+
+# Vercel
+.vercel/
+
+# TypeScript 增量构建信息
+*.tsbuildinfo
+
+# 编辑器
+.DS_Store
+.idea/
+.vscode/
